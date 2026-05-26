@@ -84,13 +84,12 @@ public partial class MainWindow : Window
             var pos = Marshal.PtrToStructure<WINDOWPOS>(lParam);
             if ((pos.flags & SWP_NOZORDER) == 0 && pos.hwndInsertAfter != HWND_TOPMOST && !_recoveryPending)
             {
+                pos.flags |= SWP_NOZORDER;
+                Marshal.StructureToPtr(pos, lParam, false);
                 _recoveryPending = true;
-                Logger.Info($"WM_WINDOWPOSCHANGING: z-order demotion detected, scheduling recovery");
-                Dispatcher.BeginInvoke(() =>
-                {
-                    SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
-                    _recoveryPending = false;
-                }, System.Windows.Threading.DispatcherPriority.Render);
+                Logger.Info("WM_WINDOWPOSCHANGING: blocked z-order demotion");
+                Dispatcher.BeginInvoke(() => _recoveryPending = false,
+                    System.Windows.Threading.DispatcherPriority.Background);
             }
         }
         return IntPtr.Zero;
@@ -305,7 +304,10 @@ public partial class MainWindow : Window
 
     private void Window_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
     {
-        OuterGrid.ContextMenu.IsOpen = true;
+        var cm = OuterGrid.ContextMenu;
+        cm.PlacementTarget = OuterGrid;
+        cm.Placement = System.Windows.Controls.Primitives.PlacementMode.Top;
+        cm.IsOpen = true;
         e.Handled = true;
     }
 

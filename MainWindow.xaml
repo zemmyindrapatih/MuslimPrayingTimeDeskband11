@@ -50,7 +50,7 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="32"/>   <!-- Icon -->
                         <ColumnDefinition Width="*"/>    <!-- Name + Arabic -->
-                        <ColumnDefinition Width="55"/>   <!-- Progress bar -->
+                        <ColumnDefinition Width="50"/>   <!-- Progress bar -->
                         <ColumnDefinition Width="60"/>   <!-- Countdown -->
                     </Grid.ColumnDefinitions>
 
@@ -61,14 +61,14 @@
                                Foreground="{StaticResource GoldBrush}"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"
-                               Margin="0,0,0,2">
+                               Margin="2,0,2,2">
                         <TextBlock.Effect>
                             <DropShadowEffect Color="#C9A84B" BlurRadius="6" ShadowDepth="0" Opacity="0.7"/>
                         </TextBlock.Effect>
                     </TextBlock>
 
                     <!-- Prayer name + Arabic -->
-                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,2,0,2" HorizontalAlignment="Right">
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,2,6,2" HorizontalAlignment="Right">
                         <TextBlock x:Name="PrayerNameText"
                                    Text="Maghrib"
                                    FontFamily="Segoe UI Variable Display"
