@@ -1,0 +1,142 @@
+<Window x:Class="PrayingTime.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="PrayingTime"
+        Width="240"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        Topmost="True"
+        ShowInTaskbar="False"
+        ResizeMode="NoResize"
+        Loaded="Window_Loaded"
+        MouseRightButtonDown="Window_MouseRightButtonDown">
+
+    <Window.Resources>
+        <Storyboard x:Key="PulseStoryboard" RepeatBehavior="Forever">
+            <DoubleAnimation Storyboard.TargetName="CountdownText"
+                             Storyboard.TargetProperty="Opacity"
+                             From="1.0" To="0.4" Duration="0:0:0.8"
+                             AutoReverse="True"/>
+        </Storyboard>
+        <Storyboard x:Key="FlashStoryboard">
+            <ColorAnimation Storyboard.TargetName="MainBorder"
+                            Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)"
+                            From="#FFDD88" To="#33C9A84B" Duration="0:0:1.5"/>
+        </Storyboard>
+        <DropShadowEffect x:Key="FloatingGlow" Color="#C9A84B" BlurRadius="14" ShadowDepth="0" Opacity="0.6"/>
+    </Window.Resources>
+
+    <!-- Outer container — #01000000 makes transparent areas hit-testable for mouse events -->
+    <Grid x:Name="OuterGrid"
+          Background="#01000000"
+          MouseLeftButtonDown="OuterGrid_MouseLeftButtonDown"
+          MouseMove="OuterGrid_MouseMove"
+          MouseLeftButtonUp="OuterGrid_MouseLeftButtonUp">
+
+        <Border x:Name="MainBorder"
+                Background="Transparent"
+                BorderThickness="0"
+                CornerRadius="0"
+                Padding="6,0">
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Main content row -->
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="32"/>   <!-- Icon -->
+                        <ColumnDefinition Width="*"/>    <!-- Name + Arabic -->
+                        <ColumnDefinition Width="55"/>   <!-- Progress bar -->
+                        <ColumnDefinition Width="60"/>   <!-- Countdown -->
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Crescent moon icon -->
+                    <TextBlock Grid.Column="0"
+                               Text="☽"
+                               FontSize="20"
+                               Foreground="{StaticResource GoldBrush}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Margin="0,0,0,2">
+                        <TextBlock.Effect>
+                            <DropShadowEffect Color="#C9A84B" BlurRadius="6" ShadowDepth="0" Opacity="0.7"/>
+                        </TextBlock.Effect>
+                    </TextBlock>
+
+                    <!-- Prayer name + Arabic -->
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,2,2,2">
+                        <TextBlock x:Name="PrayerNameText"
+                                   Text="Maghrib"
+                                   FontFamily="Segoe UI Variable Display"
+                                   FontWeight="SemiBold"
+                                   FontSize="12"
+                                   Foreground="{StaticResource IvoryBrush}"
+                                   LineHeight="15"/>
+                        <TextBlock x:Name="ArabicNameText"
+                                   Text="المغرب"
+                                   FontFamily="Segoe UI"
+                                   FontSize="9"
+                                   Foreground="{StaticResource MutedGoldBrush}"
+                                   LineHeight="12"
+                                   FlowDirection="RightToLeft"
+                                   HorizontalAlignment="Left"/>
+                    </StackPanel>
+
+                    <!-- Progress bar column -->
+                    <Grid Grid.Column="2" VerticalAlignment="Center" Margin="2,0">
+                        <Rectangle Height="3" RadiusX="2" RadiusY="2" Fill="#22C9A84B"/>
+                        <Rectangle x:Name="ProgressBar"
+                                   Height="3" RadiusX="2" RadiusY="2"
+                                   HorizontalAlignment="Left">
+                            <Rectangle.Fill>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                    <GradientStop Color="#C9A84B" Offset="0"/>
+                                    <GradientStop Color="#FFDD88" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Rectangle.Fill>
+                        </Rectangle>
+                    </Grid>
+
+                    <!-- Countdown text -->
+                    <TextBlock x:Name="CountdownText"
+                               Grid.Column="3"
+                               Text="--:--"
+                               FontFamily="Segoe UI Variable Display"
+                               FontSize="16"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource AmberBrush}"
+                               HorizontalAlignment="Right"
+                               VerticalAlignment="Center"
+                               Margin="0,0,4,0">
+                        <TextBlock.Effect>
+                            <DropShadowEffect Color="#E8A020" BlurRadius="4" ShadowDepth="0" Opacity="0.5"/>
+                        </TextBlock.Effect>
+                    </TextBlock>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <!-- Context menu -->
+        <Grid.ContextMenu>
+            <ContextMenu Background="#0D1117" BorderBrush="#33C9A84B" Foreground="#F0E6C8">
+                <MenuItem x:Name="MenuLocation" Header="⚙ Pengaturan Lokasi" Click="MenuLocation_Click"
+                          Background="#0D1117" Foreground="#F0E6C8"/>
+                <Separator Background="#33C9A84B"/>
+                <MenuItem x:Name="MenuRefresh" Header="↺ Refresh Waktu Sholat" Click="MenuRefresh_Click"
+                          Background="#0D1117" Foreground="#F0E6C8"/>
+                <Separator Background="#33C9A84B"/>
+                <MenuItem x:Name="MenuDock" Header="⊡ Posisikan ke SysTray" Click="MenuDock_Click"
+                          Background="#0D1117" Foreground="#F0E6C8"/>
+                <MenuItem x:Name="MenuLock" Header="🔒 Kunci Posisi" Click="MenuLock_Click"
+                          Background="#0D1117" Foreground="#F0E6C8"/>
+                <Separator Background="#33C9A84B"/>
+                <MenuItem x:Name="MenuExit" Header="✕ Keluar" Click="MenuExit_Click"
+                          Background="#0D1117" Foreground="#F0E6C8"/>
+            </ContextMenu>
+        </Grid.ContextMenu>
+    </Grid>
+</Window>

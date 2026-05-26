@@ -1,0 +1,149 @@
+<Window x:Class="PrayingTime.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Pengaturan Lokasi — PrayingTime"
+        Width="360" Height="310"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner"
+        Loaded="Window_Loaded">
+
+    <Border Background="#F2080C12"
+            BorderBrush="#55C9A84B"
+            BorderThickness="1"
+            CornerRadius="14">
+        <Border.Effect>
+            <DropShadowEffect Color="#000000" BlurRadius="30" ShadowDepth="0" Opacity="0.8"/>
+        </Border.Effect>
+
+        <Grid Margin="24,20,24,20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>  <!-- Header -->
+                <RowDefinition Height="16"/>
+                <RowDefinition Height="Auto"/>  <!-- City -->
+                <RowDefinition Height="10"/>
+                <RowDefinition Height="Auto"/>  <!-- Lat / Lon row -->
+                <RowDefinition Height="10"/>
+                <RowDefinition Height="Auto"/>  <!-- Timezone -->
+                <RowDefinition Height="10"/>
+                <RowDefinition Height="Auto"/>  <!-- Error label -->
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>  <!-- Buttons -->
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <StackPanel Grid.Row="0" Orientation="Horizontal">
+                <TextBlock Text="☽" FontSize="18" Foreground="#C9A84B" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <TextBlock Text="Pengaturan Lokasi"
+                           FontFamily="Segoe UI Variable Display"
+                           FontWeight="SemiBold"
+                           FontSize="15"
+                           Foreground="#F0E6C8"
+                           VerticalAlignment="Center"/>
+                <!-- Close button -->
+                <Button Content="✕"
+                        HorizontalAlignment="Right"
+                        Margin="130,0,0,0"
+                        Width="26" Height="26"
+                        Background="Transparent"
+                        Foreground="#8A7A5A"
+                        BorderThickness="0"
+                        FontSize="12"
+                        Cursor="Hand"
+                        Click="CloseBtn_Click"/>
+            </StackPanel>
+
+            <!-- Separator -->
+            <Rectangle Grid.Row="1" Height="1" VerticalAlignment="Bottom" Margin="0,8,0,0">
+                <Rectangle.Fill>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Color="Transparent" Offset="0"/>
+                        <GradientStop Color="#44C9A84B"   Offset="0.5"/>
+                        <GradientStop Color="Transparent" Offset="1"/>
+                    </LinearGradientBrush>
+                </Rectangle.Fill>
+            </Rectangle>
+
+            <!-- City name -->
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="90"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Nama Kota"
+                           Foreground="#8A7A5A"
+                           FontFamily="Segoe UI Variable Display"
+                           FontSize="11"
+                           VerticalAlignment="Center"/>
+                <TextBox x:Name="CityBox"
+                         Grid.Column="1"
+                         Style="{StaticResource DarkTextBox}"/>
+            </Grid>
+
+            <!-- Lat / Lon -->
+            <Grid Grid.Row="4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="90"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Koordinat"
+                           Foreground="#8A7A5A"
+                           FontFamily="Segoe UI Variable Display"
+                           FontSize="11"
+                           VerticalAlignment="Center"/>
+                <TextBox x:Name="LatBox"
+                         Grid.Column="1"
+                         Style="{StaticResource DarkTextBox}"
+                         ToolTip="Latitude (misal: -6.2088)"/>
+                <TextBlock Grid.Column="2" Text="," Foreground="#8A7A5A" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                <TextBox x:Name="LonBox"
+                         Grid.Column="3"
+                         Style="{StaticResource DarkTextBox}"
+                         ToolTip="Longitude (misal: 106.8456)"/>
+            </Grid>
+
+            <!-- Timezone radio buttons -->
+            <StackPanel Grid.Row="6" Orientation="Horizontal">
+                <TextBlock Text="Zona Waktu"
+                           Foreground="#8A7A5A"
+                           FontFamily="Segoe UI Variable Display"
+                           FontSize="11"
+                           VerticalAlignment="Center"
+                           Width="90"/>
+                <RadioButton x:Name="WibRadio"   Content="WIB +7"  GroupName="tz"
+                             Foreground="#C9A84B" FontFamily="Segoe UI Variable Display" FontSize="11"
+                             VerticalAlignment="Center" Margin="0,0,16,0" Cursor="Hand"/>
+                <RadioButton x:Name="WitaRadio"  Content="WITA +8" GroupName="tz"
+                             Foreground="#C9A84B" FontFamily="Segoe UI Variable Display" FontSize="11"
+                             VerticalAlignment="Center" Margin="0,0,16,0" Cursor="Hand"/>
+                <RadioButton x:Name="WitRadio"   Content="WIT +9"  GroupName="tz"
+                             Foreground="#C9A84B" FontFamily="Segoe UI Variable Display" FontSize="11"
+                             VerticalAlignment="Center" Cursor="Hand"/>
+            </StackPanel>
+
+            <!-- Error label -->
+            <TextBlock x:Name="ErrorLabel"
+                       Grid.Row="8"
+                       Foreground="#FF6B6B"
+                       FontFamily="Segoe UI Variable Display"
+                       FontSize="10"
+                       Visibility="Collapsed"
+                       TextWrapping="Wrap"/>
+
+            <!-- Buttons -->
+            <StackPanel Grid.Row="10" Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Batal"
+                        Style="{StaticResource GhostButton}"
+                        Margin="0,0,10,0"
+                        Click="CancelBtn_Click"/>
+                <Button Content="Simpan"
+                        Style="{StaticResource GoldButton}"
+                        Click="SaveBtn_Click"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

@@ -1,0 +1,18 @@
+# Build artifacts
+bin/
+obj/
+testing-build/
+
+# IDE
+.vs/
+.vscode/
+*.user
+*.sln.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+praying-time.log
