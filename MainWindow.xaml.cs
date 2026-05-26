@@ -19,6 +19,7 @@ public partial class MainWindow : Window
     private DateOnly _lastCalculated;
     private readonly DispatcherTimer _timer;
     private bool _isPulsing;
+    private bool _recoveryPending;
 
     // Dock / drag state
     private bool _isDocked;
@@ -81,11 +82,15 @@ public partial class MainWindow : Window
         if (msg == WM_WINDOWPOSCHANGING && _isDocked)
         {
             var pos = Marshal.PtrToStructure<WINDOWPOS>(lParam);
-            if ((pos.flags & SWP_NOZORDER) == 0 && pos.hwndInsertAfter != HWND_TOPMOST)
+            if ((pos.flags & SWP_NOZORDER) == 0 && pos.hwndInsertAfter != HWND_TOPMOST && !_recoveryPending)
             {
-                pos.flags |= SWP_NOZORDER;
-                Marshal.StructureToPtr(pos, lParam, false);
-                Logger.Info($"WM_WINDOWPOSCHANGING: blocked z-order change (insertAfter={pos.hwndInsertAfter})");
+                _recoveryPending = true;
+                Logger.Info($"WM_WINDOWPOSCHANGING: z-order demotion detected, scheduling recovery");
+                Dispatcher.BeginInvoke(() =>
+                {
+                    SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+                    _recoveryPending = false;
+                }, System.Windows.Threading.DispatcherPriority.Render);
             }
         }
         return IntPtr.Zero;
@@ -118,10 +123,10 @@ public partial class MainWindow : Window
     private void SetDockedState()
     {
         _isDocked = true;
-        MainBorder.Background = Brushes.Transparent;
-        MainBorder.BorderBrush = new SolidColorBrush(Colors.Transparent);
-        MainBorder.BorderThickness = new Thickness(0);
-        MainBorder.CornerRadius = new CornerRadius(0);
+        MainBorder.Background = new SolidColorBrush(Color.FromArgb(0xBB, 0x0D, 0x11, 0x17));
+        MainBorder.BorderBrush = new SolidColorBrush(Color.FromArgb(0x55, 0xFF, 0xFF, 0xFF));
+        MainBorder.BorderThickness = new Thickness(1);
+        MainBorder.CornerRadius = new CornerRadius(6);
         MainBorder.Effect = null;
         TaskbarPositioner.PositionBesideSysTray(this);
         Logger.Info($"State: docked — Left={Left:F0} Top={Top:F0} Height={Height:F0}");
@@ -300,6 +305,8 @@ public partial class MainWindow : Window
 
     private void Window_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
     {
+        OuterGrid.ContextMenu.IsOpen = true;
+        e.Handled = true;
     }
 
     private void MenuLocation_Click(object sender, RoutedEventArgs e)
@@ -342,6 +349,6 @@ public partial class MainWindow : Window
             var hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
             bool ok = SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
             Logger.Info($"SetWindowPos(TOPMOST) after deactivate: ok={ok}, hwnd={hwnd}");
-        }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+        }, System.Windows.Threading.DispatcherPriority.Normal);
     }
 }
