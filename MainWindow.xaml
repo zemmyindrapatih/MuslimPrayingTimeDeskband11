@@ -68,7 +68,7 @@
                     </TextBlock>
 
                     <!-- Prayer name + Arabic -->
-                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,2,6,2" HorizontalAlignment="Right">
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="2,2,8,2" HorizontalAlignment="Left">
                         <TextBlock x:Name="PrayerNameText"
                                    Text="Maghrib"
                                    FontFamily="Segoe UI Variable Display"
@@ -76,7 +76,7 @@
                                    FontSize="12"
                                    Foreground="{StaticResource IvoryBrush}"
                                    LineHeight="15"
-                                   TextAlignment="Right"/>
+                                   TextAlignment="Left"/>
                         <TextBlock x:Name="ArabicNameText"
                                    Text="المغرب"
                                    FontFamily="Segoe UI"

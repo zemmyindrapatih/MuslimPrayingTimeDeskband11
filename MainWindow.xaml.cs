@@ -20,6 +20,7 @@ public partial class MainWindow : Window
     private readonly DispatcherTimer _timer;
     private bool _isPulsing;
     private bool _recoveryPending;
+    private readonly DispatcherTimer _topmostTimer;
 
     // Dock / drag state
     private bool _isDocked;
@@ -67,6 +68,8 @@ public partial class MainWindow : Window
         InitializeComponent();
         _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
         _timer.Tick += Timer_Tick;
+        _topmostTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(200) };
+        _topmostTimer.Tick += TopmostTimer_Tick;
     }
 
     protected override void OnSourceInitialized(EventArgs e)
@@ -87,9 +90,8 @@ public partial class MainWindow : Window
                 pos.flags |= SWP_NOZORDER;
                 Marshal.StructureToPtr(pos, lParam, false);
                 _recoveryPending = true;
-                Logger.Info("WM_WINDOWPOSCHANGING: blocked z-order demotion");
                 Dispatcher.BeginInvoke(() => _recoveryPending = false,
-                    System.Windows.Threading.DispatcherPriority.Background);
+                    System.Windows.Threading.DispatcherPriority.SystemIdle);
             }
         }
         return IntPtr.Zero;
@@ -128,6 +130,7 @@ public partial class MainWindow : Window
         MainBorder.CornerRadius = new CornerRadius(6);
         MainBorder.Effect = null;
         TaskbarPositioner.PositionBesideSysTray(this);
+        _topmostTimer.Start();
         Logger.Info($"State: docked — Left={Left:F0} Top={Top:F0} Height={Height:F0}");
     }
 
@@ -139,6 +142,7 @@ public partial class MainWindow : Window
         MainBorder.CornerRadius = new CornerRadius(12);
         MainBorder.Effect = (Effect)Resources["FloatingGlow"];
         Height = 50;
+        _topmostTimer.Stop();
         Logger.Info($"State: floating — Left={Left:F0} Top={Top:F0}");
     }
 
@@ -148,6 +152,12 @@ public partial class MainWindow : Window
         if (today != _lastCalculated) RecalculateTimes();
         UpdateDisplay();
         if (_isDocked) TaskbarPositioner.PositionBesideSysTray(this);
+    }
+
+    private void TopmostTimer_Tick(object? sender, EventArgs e)
+    {
+        var hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+        SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
     }
 
     private void UpdateDisplay()
