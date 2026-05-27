@@ -131,8 +131,9 @@ public partial class MainWindow : Window
             IntPtr.Zero, _winEventDelegate, 0, 0, WINEVENT_OUTOFCONTEXT);
 
         var ver = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
-        MenuVersionLabel.Text = $"PrayingTime v{ver?.Major}.{ver?.Minor}.{ver?.Build}";
-        MenuStartup.IsChecked = IsStartupEnabled();
+        string verStr = $"v{ver?.Major}.{ver?.Minor}.{ver?.Build}";
+        MenuAbout.Header = $"PrayingTime {verStr}";
+        UpdateStartupIcon();
     }
 
     private void RecalculateTimes()
@@ -380,6 +381,18 @@ public partial class MainWindow : Window
             key.DeleteValue(RunRegistryValueName, false);
     }
 
+    private void UpdateStartupIcon()
+    {
+        bool enabled = IsStartupEnabled();
+        if (MenuStartup.Icon is System.Windows.Controls.TextBlock tb)
+        {
+            tb.Text = enabled ? ((char)0xEC61).ToString() : ((char)0xEC60).ToString();
+            tb.Foreground = enabled
+                ? new SolidColorBrush(Color.FromRgb(0xC9, 0xA8, 0x4B))
+                : new SolidColorBrush(Color.FromRgb(0x88, 0x88, 0x88));
+        }
+    }
+
     // ── Menu handlers ───────────────────────────────────────────────────────
 
     public void ApplyNewSettings(AppSettings settings)
@@ -390,6 +403,16 @@ public partial class MainWindow : Window
         UpdateDisplay();
         try { ((Storyboard)Resources["FlashStoryboard"]).Begin(this); }
         catch (Exception ex) { Logger.Error("FlashStoryboard.Begin failed", ex); }
+    }
+
+    private void MenuAbout_Click(object sender, RoutedEventArgs e)
+    {
+        var ver = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+        MessageBox.Show(
+            $"PrayingTime v{ver?.Major}.{ver?.Minor}.{ver?.Build}\nPrayer times widget for Windows.",
+            "About PrayingTime",
+            MessageBoxButton.OK,
+            MessageBoxImage.Information);
     }
 
     private void Window_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
@@ -434,7 +457,10 @@ public partial class MainWindow : Window
     }
 
     private void MenuStartup_Click(object sender, RoutedEventArgs e)
-        => SetStartup(MenuStartup.IsChecked == true);
+    {
+        SetStartup(!IsStartupEnabled());
+        UpdateStartupIcon();
+    }
 
     private void MenuExit_Click(object sender, RoutedEventArgs e)
         => Application.Current.Shutdown();
@@ -446,3 +472,5 @@ public partial class MainWindow : Window
         Dispatcher.BeginInvoke(ReassertTopmost, DispatcherPriority.Normal);
     }
 }
+
+

@@ -116,13 +116,11 @@
         <!-- Context menu -->
         <Grid.ContextMenu>
             <ContextMenu Background="#0D1117" BorderBrush="#33C9A84B">
-                <TextBlock x:Name="MenuVersionLabel"
-                           Foreground="#555555"
-                           FontSize="11"
-                           FontFamily="Segoe UI"
-                           Padding="38,5,10,4"
-                           IsHitTestVisible="False"
-                           Focusable="False"/>
+                <MenuItem x:Name="MenuAbout" Click="MenuAbout_Click">
+                    <MenuItem.Icon>
+                        <TextBlock Text="&#xE946;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#C9A84B" VerticalAlignment="Center"/>
+                    </MenuItem.Icon>
+                </MenuItem>
                 <Separator/>
                 <MenuItem x:Name="MenuLocation" Header="Location Settings" Click="MenuLocation_Click">
                     <MenuItem.Icon>
@@ -146,9 +144,9 @@
                         <TextBlock Text="&#xE72E;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#C9A84B" VerticalAlignment="Center"/>
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem x:Name="MenuStartup" Header="Run at Windows Startup" IsCheckable="True" Click="MenuStartup_Click">
+                <MenuItem x:Name="MenuStartup" Header="Run at Windows Startup" Click="MenuStartup_Click">
                     <MenuItem.Icon>
-                        <TextBlock Text="&#xE8A0;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#C9A84B" VerticalAlignment="Center"/>
+                        <TextBlock Text="&#xEC60;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#888888" VerticalAlignment="Center"/>
                     </MenuItem.Icon>
                 </MenuItem>
                 <Separator/>
