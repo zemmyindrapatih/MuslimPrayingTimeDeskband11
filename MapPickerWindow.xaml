@@ -23,6 +23,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="42"/>
                 <RowDefinition Height="*"/>
+                <RowDefinition Height="42"/>
             </Grid.RowDefinitions>
 
             <!-- Title bar -->
@@ -47,8 +48,31 @@
             </Grid>
 
             <!-- Map -->
-            <Border Grid.Row="1" CornerRadius="0,0,13,13" ClipToBounds="True">
+            <Border Grid.Row="1" CornerRadius="0,0,0,0" ClipToBounds="True">
                 <wv2:WebView2 x:Name="MapView"/>
+            </Border>
+
+            <!-- Footer: coordinate preview + confirm button -->
+            <Border Grid.Row="2" Background="#0A0E13">
+                <Grid Margin="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock x:Name="SelectedCoordsLabel"
+                               Grid.Column="0"
+                               Text="Select a location on the map"
+                               FontFamily="Segoe UI Variable Display"
+                               FontSize="11"
+                               Foreground="#8A7A5A"
+                               VerticalAlignment="Center"/>
+                    <Button x:Name="ConfirmBtn"
+                            Grid.Column="1"
+                            Margin="16,0,0,0"
+                            Content="Confirm Location"
+                            Style="{StaticResource GoldButton}"
+                            Click="ConfirmBtn_Click"/>
+                </Grid>
             </Border>
         </Grid>
     </Border>

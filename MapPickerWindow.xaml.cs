@@ -10,11 +10,13 @@ public partial class MapPickerWindow : Window
 
     private readonly double _initLat;
     private readonly double _initLon;
+    private bool _locationSelected;
 
     public MapPickerWindow(double lat, double lon)
     {
         _initLat = lat;
         _initLon = lon;
+        _locationSelected = false;
         InitializeComponent();
     }
 
@@ -28,7 +30,8 @@ public partial class MapPickerWindow : Window
                 var json = System.Text.Json.JsonDocument.Parse(args.WebMessageAsJson);
                 ResultLat = json.RootElement.GetProperty("lat").GetDouble();
                 ResultLon = json.RootElement.GetProperty("lng").GetDouble();
-                DialogResult = true;
+                _locationSelected = true;
+                SelectedCoordsLabel.Text = $"{ResultLat:F6}, {ResultLon:F6}";
             }
             catch { }
         };
@@ -43,6 +46,14 @@ public partial class MapPickerWindow : Window
     }
 
     private void CloseBtn_Click(object sender, RoutedEventArgs e) => DialogResult = false;
+
+    private void ConfirmBtn_Click(object sender, RoutedEventArgs e)
+    {
+        if (_locationSelected)
+            DialogResult = true;
+        else
+            SelectedCoordsLabel.Text = "Please select a location on the map";
+    }
 
     private const string MapHtml = """
         <!DOCTYPE html>
