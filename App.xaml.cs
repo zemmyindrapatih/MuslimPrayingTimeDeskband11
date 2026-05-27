@@ -12,7 +12,7 @@ public partial class App : Application
         _mutex = new Mutex(true, "PrayingTime_SingleInstance", out bool createdNew);
         if (!createdNew)
         {
-            MessageBox.Show("PrayingTime sudah berjalan.", "PrayingTime", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show("PrayingTime is already running.", "PrayingTime", MessageBoxButton.OK, MessageBoxImage.Information);
             Shutdown();
             return;
         }

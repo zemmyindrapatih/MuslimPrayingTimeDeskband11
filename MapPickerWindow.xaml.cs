@@ -27,7 +27,8 @@ public partial class MapPickerWindow : Window
         {
             try
             {
-                var json = System.Text.Json.JsonDocument.Parse(args.WebMessageAsJson);
+                var raw = args.TryGetWebMessageAsString();
+                var json = System.Text.Json.JsonDocument.Parse(raw);
                 ResultLat = json.RootElement.GetProperty("lat").GetDouble();
                 ResultLon = json.RootElement.GetProperty("lng").GetDouble();
                 _locationSelected = true;
