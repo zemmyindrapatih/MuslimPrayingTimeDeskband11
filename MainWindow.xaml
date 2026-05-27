@@ -123,20 +123,35 @@
 
         <!-- Context menu -->
         <Grid.ContextMenu>
-            <ContextMenu Background="#0D1117" BorderBrush="#33C9A84B" Foreground="#F0E6C8">
-                <MenuItem x:Name="MenuLocation" Header="⚙ Pengaturan Lokasi" Click="MenuLocation_Click"
-                          Background="#0D1117" Foreground="#F0E6C8"/>
-                <Separator Background="#33C9A84B"/>
-                <MenuItem x:Name="MenuRefresh" Header="↺ Refresh Waktu Sholat" Click="MenuRefresh_Click"
-                          Background="#0D1117" Foreground="#F0E6C8"/>
-                <Separator Background="#33C9A84B"/>
-                <MenuItem x:Name="MenuDock" Header="⊡ Posisikan ke SysTray" Click="MenuDock_Click"
-                          Background="#0D1117" Foreground="#F0E6C8"/>
-                <MenuItem x:Name="MenuLock" Header="🔒 Kunci Posisi" Click="MenuLock_Click"
-                          Background="#0D1117" Foreground="#F0E6C8"/>
-                <Separator Background="#33C9A84B"/>
-                <MenuItem x:Name="MenuExit" Header="✕ Keluar" Click="MenuExit_Click"
-                          Background="#0D1117" Foreground="#F0E6C8"/>
+            <ContextMenu Background="#0D1117" BorderBrush="#33C9A84B">
+                <MenuItem x:Name="MenuLocation" Header="Location Settings" Click="MenuLocation_Click">
+                    <MenuItem.Icon>
+                        <TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#C9A84B" VerticalAlignment="Center"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <Separator/>
+                <MenuItem x:Name="MenuRefresh" Header="Refresh Prayer Times" Click="MenuRefresh_Click">
+                    <MenuItem.Icon>
+                        <TextBlock Text="&#xE72C;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#C9A84B" VerticalAlignment="Center"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <Separator/>
+                <MenuItem x:Name="MenuDock" Header="Snap to SysTray" Click="MenuDock_Click">
+                    <MenuItem.Icon>
+                        <TextBlock Text="&#xE718;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#C9A84B" VerticalAlignment="Center"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem x:Name="MenuLock" Header="Lock Position" Click="MenuLock_Click">
+                    <MenuItem.Icon>
+                        <TextBlock Text="&#xE72E;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#C9A84B" VerticalAlignment="Center"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <Separator/>
+                <MenuItem x:Name="MenuExit" Header="Exit" Click="MenuExit_Click">
+                    <MenuItem.Icon>
+                        <TextBlock Text="&#xE8BB;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="#C9A84B" VerticalAlignment="Center"/>
+                    </MenuItem.Icon>
+                </MenuItem>
             </ContextMenu>
         </Grid.ContextMenu>
     </Grid>

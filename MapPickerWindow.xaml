@@ -1,0 +1,55 @@
+<Window x:Class="PrayingTime.MapPickerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+        Title="Pick Location — PrayingTime"
+        Width="720" Height="540"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner"
+        Loaded="Window_Loaded">
+
+    <Border Background="#F2080C12"
+            BorderBrush="#55C9A84B"
+            BorderThickness="1"
+            CornerRadius="14">
+        <Border.Effect>
+            <DropShadowEffect Color="#000000" BlurRadius="30" ShadowDepth="0" Opacity="0.8"/>
+        </Border.Effect>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="42"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Title bar -->
+            <Grid Grid.Row="0" Margin="16,0" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="&#xE707;" FontFamily="Segoe MDL2 Assets" FontSize="14"
+                               Foreground="#C9A84B" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                    <TextBlock Text="Click on the map to pick a location"
+                               FontFamily="Segoe UI Variable Display" FontSize="12"
+                               Foreground="#F0E6C8" VerticalAlignment="Center"/>
+                </StackPanel>
+                <Button Content="&#xE8BB;"
+                        FontFamily="Segoe MDL2 Assets"
+                        FontSize="12"
+                        HorizontalAlignment="Right"
+                        Width="28" Height="28"
+                        Background="Transparent"
+                        Foreground="#8A7A5A"
+                        BorderThickness="0"
+                        Cursor="Hand"
+                        Click="CloseBtn_Click"/>
+            </Grid>
+
+            <!-- Map -->
+            <Border Grid.Row="1" CornerRadius="0,0,13,13" ClipToBounds="True">
+                <wv2:WebView2 x:Name="MapView"/>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

@@ -28,6 +28,11 @@ public partial class MainWindow : Window
     private bool _isDragging;
     private int _dragStartScreenX, _dragStartScreenY;
     private double _windowLeftOnDown, _windowTopOnDown;
+    private double? _dockedLeftOverride;
+
+    // WinEventHook state
+    private IntPtr _winEventHook = IntPtr.Zero;
+    private WinEventProc? _winEventDelegate;
 
     [DllImport("user32.dll")]
     private static extern bool GetCursorPos(out POINT pt);
@@ -35,10 +40,24 @@ public partial class MainWindow : Window
     [DllImport("user32.dll")]
     private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
 
+    [DllImport("user32.dll")]
+    private static extern IntPtr SetWinEventHook(uint eventMin, uint eventMax, IntPtr hmodWinEventProc,
+        WinEventProc lpfnWinEventProc, uint idProcess, uint idThread, uint dwFlags);
+
+    [DllImport("user32.dll")]
+    private static extern bool UnhookWinEvent(IntPtr hWinEventHook);
+
+    private delegate void WinEventProc(IntPtr hWinEventHook, uint eventType, IntPtr hwnd,
+        int idObject, int idChild, uint dwEventThread, uint dwmsEventTime);
+
+    private const uint EVENT_SYSTEM_FOREGROUND = 0x0003;
+    private const uint WINEVENT_OUTOFCONTEXT   = 0x0000;
+
     [StructLayout(LayoutKind.Sequential)]
     private struct POINT { public int X, Y; }
 
-    private static readonly IntPtr HWND_TOPMOST = new(-1);
+    private static readonly IntPtr HWND_TOPMOST   = new(-1);
+    private static readonly IntPtr HWND_NOTOPMOST = new(-2);
     private const uint SWP_NOMOVE = 0x0002;
     private const uint SWP_NOSIZE = 0x0001;
     private const uint SWP_NOACTIVATE = 0x0010;
@@ -55,12 +74,12 @@ public partial class MainWindow : Window
 
     private static readonly (string Name, string Arabic, Func<PrayerTimes, DateTime> Getter)[] PrayerDefs =
     [
-        ("Subuh",   "الفجر",    t => t.Fajr),
-        ("Syuruq",  "الشروق",   t => t.Sunrise),
-        ("Zuhur",   "الظهر",    t => t.Dhuhr),
-        ("Ashar",   "العصر",    t => t.Asr),
+        ("Fajr",    "الفجر",    t => t.Fajr),
+        ("Sunrise", "الشروق",   t => t.Sunrise),
+        ("Dhuhr",   "الظهر",    t => t.Dhuhr),
+        ("Asr",     "العصر",    t => t.Asr),
         ("Maghrib", "المغرب",   t => t.Maghrib),
-        ("Isya",    "العشاء",   t => t.Isha),
+        ("Isha",    "العشاء",   t => t.Isha),
     ];
 
     public MainWindow()
@@ -68,7 +87,7 @@ public partial class MainWindow : Window
         InitializeComponent();
         _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
         _timer.Tick += Timer_Tick;
-        _topmostTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(200) };
+        _topmostTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(100) };
         _topmostTimer.Tick += TopmostTimer_Tick;
     }
 
@@ -107,6 +126,9 @@ public partial class MainWindow : Window
         _timer.Start();
         UpdateDisplay();
         Deactivated += Window_Deactivated;
+        _winEventDelegate = OnForegroundWindowChanged;
+        _winEventHook = SetWinEventHook(EVENT_SYSTEM_FOREGROUND, EVENT_SYSTEM_FOREGROUND,
+            IntPtr.Zero, _winEventDelegate, 0, 0, WINEVENT_OUTOFCONTEXT);
     }
 
     private void RecalculateTimes()
@@ -124,6 +146,7 @@ public partial class MainWindow : Window
     private void SetDockedState()
     {
         _isDocked = true;
+        _dockedLeftOverride = null;
         MainBorder.Background = new SolidColorBrush(Color.FromArgb(0xBB, 0x0D, 0x11, 0x17));
         MainBorder.BorderBrush = new SolidColorBrush(Color.FromArgb(0x55, 0xFF, 0xFF, 0xFF));
         MainBorder.BorderThickness = new Thickness(1);
@@ -151,13 +174,38 @@ public partial class MainWindow : Window
         var today = DateOnly.FromDateTime(DateTime.Now);
         if (today != _lastCalculated) RecalculateTimes();
         UpdateDisplay();
-        if (_isDocked) TaskbarPositioner.PositionBesideSysTray(this);
+        if (_isDocked)
+        {
+            if (_dockedLeftOverride.HasValue)
+                TaskbarPositioner.PositionBesideSysTrayAtLeft(this, _dockedLeftOverride.Value);
+            else
+                TaskbarPositioner.PositionBesideSysTray(this);
+        }
+    }
+
+    private void ReassertTopmost()
+    {
+        if (!_isDocked) return;
+        var hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+        SetWindowPos(hwnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+        SetWindowPos(hwnd, HWND_TOPMOST,   0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
     }
 
     private void TopmostTimer_Tick(object? sender, EventArgs e)
+        => ReassertTopmost();
+
+    private void OnForegroundWindowChanged(IntPtr hWinEventHook, uint eventType, IntPtr hwnd,
+        int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
     {
-        var hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
-        SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+        if (!_isDocked) return;
+        Dispatcher.BeginInvoke(ReassertTopmost, DispatcherPriority.Render);
+    }
+
+    protected override void OnClosed(EventArgs e)
+    {
+        base.OnClosed(e);
+        if (_winEventHook != IntPtr.Zero)
+            UnhookWinEvent(_winEventHook);
     }
 
     private void UpdateDisplay()
@@ -266,11 +314,19 @@ public partial class MainWindow : Window
 
         if (_isDocked)
         {
-            double dist = Math.Sqrt(dx * dx + dy * dy);
-            Logger.Info($"DockDrag: dist={dist:F0}px, dx={dx}, dy={dy}");
-            if (dist < 40) return;
-            Logger.Info("Escaping dock → floating");
-            SetFloatingState();
+            Logger.Info($"DockDrag: dx={dx}, dy={dy}");
+            if (Math.Abs(dy) > 40)
+            {
+                Logger.Info("Escaping dock → floating (vertical drag)");
+                _dockedLeftOverride = null;
+                SetFloatingState();
+            }
+            else
+            {
+                _dockedLeftOverride = _windowLeftOnDown + dx / dpi;
+                Left = _dockedLeftOverride.Value;
+                return;
+            }
         }
 
         double newLeft = _windowLeftOnDown + dx / dpi;
@@ -281,6 +337,7 @@ public partial class MainWindow : Window
         {
             Logger.Info($"SnapBack: newTop={newTop:F1} taskbarTop={taskbarInfo.Value.Top:F1}");
             StopDrag();
+            _dockedLeftOverride = null;
             SetDockedState();
             return;
         }
@@ -345,7 +402,9 @@ public partial class MainWindow : Window
     private void MenuLock_Click(object sender, RoutedEventArgs e)
     {
         _isLocked = !_isLocked;
-        MenuLock.Header = _isLocked ? "🔓 Buka Kunci" : "🔒 Kunci Posisi";
+        MenuLock.Header = _isLocked ? "Unlock" : "Lock Position";
+        if (MenuLock.Icon is System.Windows.Controls.TextBlock iconTb)
+            iconTb.Text = _isLocked ? "" : "";
         Logger.Info($"Movement lock: {_isLocked}");
     }
 
@@ -356,11 +415,6 @@ public partial class MainWindow : Window
     {
         Logger.Info($"Deactivated: isDocked={_isDocked}");
         if (!_isDocked) return;
-        Dispatcher.BeginInvoke(() =>
-        {
-            var hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
-            bool ok = SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
-            Logger.Info($"SetWindowPos(TOPMOST) after deactivate: ok={ok}, hwnd={hwnd}");
-        }, System.Windows.Threading.DispatcherPriority.Normal);
+        Dispatcher.BeginInvoke(ReassertTopmost, DispatcherPriority.Normal);
     }
 }

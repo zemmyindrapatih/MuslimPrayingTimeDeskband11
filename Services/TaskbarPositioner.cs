@@ -83,6 +83,16 @@ public static class TaskbarPositioner
         window.Left = trayLeft - window.Width - 2;
     }
 
+    public static void PositionBesideSysTrayAtLeft(Window window, double left)
+    {
+        double dpiScale = GetDpiScale(window);
+        IntPtr taskbarHwnd = FindWindow("Shell_TrayWnd", null);
+        if (taskbarHwnd == IntPtr.Zero || !GetWindowRect(taskbarHwnd, out RECT taskbarRect)) return;
+        window.Top    = taskbarRect.Top    / dpiScale;
+        window.Height = (taskbarRect.Bottom - taskbarRect.Top) / dpiScale;
+        window.Left   = left;
+    }
+
     public static (double Top, double Height)? GetTaskbarInfo(Window window)
     {
         double dpi = GetDpiScale(window);
