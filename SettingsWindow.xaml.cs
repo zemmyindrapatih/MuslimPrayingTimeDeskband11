@@ -1,4 +1,5 @@
 using System.Windows;
+using System.Net.Http;
 using PrayingTime.Models;
 using PrayingTime.Services;
 
@@ -68,7 +69,7 @@ public partial class SettingsWindow : Window
         DialogResult = true;
     }
 
-    private void BrowseMapBtn_Click(object sender, RoutedEventArgs e)
+    private async void BrowseMapBtn_Click(object sender, RoutedEventArgs e)
     {
         double.TryParse(LatBox.Text.Replace(',', '.'),
             System.Globalization.NumberStyles.Float,
@@ -83,7 +84,29 @@ public partial class SettingsWindow : Window
         {
             LatBox.Text = picker.ResultLat.ToString("F6", System.Globalization.CultureInfo.InvariantCulture);
             LonBox.Text = picker.ResultLon.ToString("F6", System.Globalization.CultureInfo.InvariantCulture);
+            var city = await ReverseGeocodeAsync(picker.ResultLat, picker.ResultLon);
+            if (!string.IsNullOrEmpty(city))
+                CityBox.Text = city;
         }
+    }
+
+    private static async Task<string?> ReverseGeocodeAsync(double lat, double lon)
+    {
+        try
+        {
+            using var client = new HttpClient();
+            client.DefaultRequestHeaders.Add("User-Agent", "PrayingTime/1.0");
+            var latStr = lat.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            var lonStr = lon.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            var url = $"https://nominatim.openstreetmap.org/reverse?format=json&lat={latStr}&lon={lonStr}";
+            var json = await client.GetStringAsync(url);
+            var doc = System.Text.Json.JsonDocument.Parse(json);
+            var addr = doc.RootElement.GetProperty("address");
+            foreach (var key in new[] { "city", "town", "village", "county", "state" })
+                if (addr.TryGetProperty(key, out var v)) return v.GetString();
+        }
+        catch { }
+        return null;
     }
 
     private void CancelBtn_Click(object sender, RoutedEventArgs e) => DialogResult = false;

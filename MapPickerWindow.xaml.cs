@@ -16,7 +16,9 @@ public partial class MapPickerWindow : Window
     {
         _initLat = lat;
         _initLon = lon;
-        _locationSelected = false;
+        ResultLat = lat;
+        ResultLon = lon;
+        _locationSelected = true;
         InitializeComponent();
     }
 
@@ -39,6 +41,7 @@ public partial class MapPickerWindow : Window
         string latStr = _initLat.ToString(System.Globalization.CultureInfo.InvariantCulture);
         string lonStr = _initLon.ToString(System.Globalization.CultureInfo.InvariantCulture);
         MapView.NavigateToString(MapHtml.Replace("__LAT__", latStr).Replace("__LON__", lonStr));
+        SelectedCoordsLabel.Text = $"{ResultLat:F6}, {ResultLon:F6}";
     }
 
     private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
