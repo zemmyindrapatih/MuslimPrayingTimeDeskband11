@@ -54,7 +54,7 @@
 
             <!-- Footer: coordinate preview + confirm button -->
             <Border Grid.Row="2" Background="#0A0E13">
-                <Grid Margin="16">
+                <Grid Margin="12,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>

@@ -219,7 +219,6 @@ public partial class MainWindow : Window
         if (countdown < TimeSpan.Zero) countdown = TimeSpan.Zero;
 
         PrayerNameText.Text = nextName;
-        ArabicNameText.Text = nextArabic;
         CountdownText.Text  = FormatCountdown(countdown);
 
         // Progress bar: fraction of elapsed time in current interval
@@ -380,9 +379,11 @@ public partial class MainWindow : Window
 
     private void MenuLocation_Click(object sender, RoutedEventArgs e)
     {
+        _topmostTimer.Stop();
         var dlg = new SettingsWindow(_settings) { Owner = this };
         if (dlg.ShowDialog() == true && dlg.ResultSettings != null)
             ApplyNewSettings(dlg.ResultSettings);
+        if (_isDocked) _topmostTimer.Start();
     }
 
     private void MenuRefresh_Click(object sender, RoutedEventArgs e)

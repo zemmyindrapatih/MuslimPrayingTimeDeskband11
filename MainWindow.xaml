@@ -68,25 +68,16 @@
                         </TextBlock.Effect>
                     </TextBlock>
 
-                    <!-- Prayer name + Arabic -->
-                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="2,2,8,2" HorizontalAlignment="Left">
-                        <TextBlock x:Name="PrayerNameText"
-                                   Text="Maghrib"
-                                   FontFamily="Segoe UI Variable Display"
-                                   FontWeight="SemiBold"
-                                   FontSize="12"
-                                   Foreground="{StaticResource IvoryBrush}"
-                                   LineHeight="15"
-                                   TextAlignment="Left"/>
-                        <TextBlock x:Name="ArabicNameText"
-                                   Text="المغرب"
-                                   FontFamily="Segoe UI"
-                                   FontSize="9"
-                                   Foreground="{StaticResource MutedGoldBrush}"
-                                   LineHeight="12"
-                                   FlowDirection="RightToLeft"
-                                   HorizontalAlignment="Right"/>
-                    </StackPanel>
+                    <!-- Prayer name -->
+                    <TextBlock x:Name="PrayerNameText"
+                               Grid.Column="1"
+                               Text="Maghrib"
+                               FontFamily="Segoe UI Variable Display"
+                               FontWeight="SemiBold"
+                               FontSize="14"
+                               Foreground="{StaticResource IvoryBrush}"
+                               VerticalAlignment="Center"
+                               Margin="2,2,8,2"/>
 
                     <!-- Progress bar column -->
                     <Grid Grid.Column="2" VerticalAlignment="Center" Margin="0,0">
@@ -108,7 +99,7 @@
                                Grid.Column="3"
                                Text="--:--"
                                FontFamily="Segoe UI Variable Display"
-                               FontSize="18"
+                               FontSize="20"
                                FontWeight="SemiBold"
                                Foreground="{StaticResource AmberBrush}"
                                HorizontalAlignment="Right"
