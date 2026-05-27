@@ -56,7 +56,8 @@
                     </Grid.ColumnDefinitions>
 
                     <!-- Crescent moon icon -->
-                    <TextBlock Grid.Column="0"
+                    <TextBlock x:Name="PrayerIcon"
+                               Grid.Column="0"
                                Text="☽"
                                FontSize="20"
                                Foreground="{StaticResource GoldBrush}"

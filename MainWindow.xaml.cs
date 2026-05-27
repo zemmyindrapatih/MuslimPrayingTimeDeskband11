@@ -224,6 +224,7 @@ public partial class MainWindow : Window
         if (countdown < TimeSpan.Zero) countdown = TimeSpan.Zero;
 
         PrayerNameText.Text = nextName;
+        UpdatePrayerIcon(nextName);
         CountdownText.Text  = FormatCountdown(countdown);
 
         // Progress bar: fraction of elapsed time in current interval
@@ -391,6 +392,21 @@ public partial class MainWindow : Window
                 ? new SolidColorBrush(Color.FromRgb(0xC9, 0xA8, 0x4B))
                 : new SolidColorBrush(Color.FromRgb(0x88, 0x88, 0x88));
         }
+    }
+
+    private void UpdatePrayerIcon(string prayerName)
+    {
+        var (glyph, hex) = prayerName switch
+        {
+            "Fajr"    => ("★", "#A08030"),
+            "Sunrise" => ("☀", "#FFD700"),
+            "Dhuhr"   => ("☀", "#FFD700"),
+            "Asr"     => ("☀", "#E8A020"),
+            _         => ("☽", "#C9A84B"),
+        };
+        PrayerIcon.Text = glyph;
+        PrayerIcon.Foreground = new SolidColorBrush(
+            (Color)ColorConverter.ConvertFromString(hex));
     }
 
     // ── Menu handlers ───────────────────────────────────────────────────────
