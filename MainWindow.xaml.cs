@@ -129,6 +129,10 @@ public partial class MainWindow : Window
         _winEventDelegate = OnForegroundWindowChanged;
         _winEventHook = SetWinEventHook(EVENT_SYSTEM_FOREGROUND, EVENT_SYSTEM_FOREGROUND,
             IntPtr.Zero, _winEventDelegate, 0, 0, WINEVENT_OUTOFCONTEXT);
+
+        var ver = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+        MenuVersionLabel.Text = $"PrayingTime v{ver?.Major}.{ver?.Minor}.{ver?.Build}";
+        MenuStartup.IsChecked = IsStartupEnabled();
     }
 
     private void RecalculateTimes()
@@ -356,6 +360,26 @@ public partial class MainWindow : Window
         OuterGrid.ReleaseMouseCapture();
     }
 
+    // ── Registry / Startup ──────────────────────────────────────────────────────
+
+    private const string RunRegistryKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Run";
+    private const string RunRegistryValueName = "PrayingTime";
+
+    private static bool IsStartupEnabled()
+    {
+        using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(RunRegistryKey, false);
+        return key?.GetValue(RunRegistryValueName) != null;
+    }
+
+    private static void SetStartup(bool enable)
+    {
+        using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(RunRegistryKey, true)!;
+        if (enable)
+            key.SetValue(RunRegistryValueName, System.Diagnostics.Process.GetCurrentProcess().MainModule!.FileName);
+        else
+            key.DeleteValue(RunRegistryValueName, false);
+    }
+
     // ── Menu handlers ───────────────────────────────────────────────────────
 
     public void ApplyNewSettings(AppSettings settings)
@@ -408,6 +432,9 @@ public partial class MainWindow : Window
             iconTb.Text = _isLocked ? "" : "";
         Logger.Info($"Movement lock: {_isLocked}");
     }
+
+    private void MenuStartup_Click(object sender, RoutedEventArgs e)
+        => SetStartup(MenuStartup.IsChecked == true);
 
     private void MenuExit_Click(object sender, RoutedEventArgs e)
         => Application.Current.Shutdown();

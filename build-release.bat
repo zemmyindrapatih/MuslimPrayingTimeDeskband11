@@ -4,6 +4,8 @@ REM Usage: run this batch file from the project directory
 
 dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o testing-build
 
+del /q testing-build\*.xml 2>nul
+
 echo.
 echo Build complete. Output in testing-build\
 pause
