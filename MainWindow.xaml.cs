@@ -87,7 +87,7 @@ public partial class MainWindow : Window
         InitializeComponent();
         _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
         _timer.Tick += Timer_Tick;
-        _topmostTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(100) };
+        _topmostTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(2000) };
         _topmostTimer.Tick += TopmostTimer_Tick;
     }
 
@@ -192,8 +192,7 @@ public partial class MainWindow : Window
     {
         if (!_isDocked) return;
         var hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
-        SetWindowPos(hwnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
-        SetWindowPos(hwnd, HWND_TOPMOST,   0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+        SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
     }
 
     private void TopmostTimer_Tick(object? sender, EventArgs e)
@@ -218,7 +217,7 @@ public partial class MainWindow : Window
         if (_todayTimes == null || _tomorrowTimes == null) return;
 
         var now = DateTime.Now;
-        var (nextName, nextArabic, nextTime, prevTime) = FindNextPrayer(now);
+        var (nextName, nextArabic, nextTime, prevName, prevTime) = FindNextPrayer(now);
 
         TimeSpan countdown = nextTime - now;
         if (countdown < TimeSpan.Zero) countdown = TimeSpan.Zero;
@@ -226,6 +225,11 @@ public partial class MainWindow : Window
         PrayerNameText.Text = nextName;
         UpdatePrayerIcon(nextName);
         CountdownText.Text  = FormatCountdown(countdown);
+
+        TimeSpan elapsed = now - prevTime;
+        ElapsedText.Text = elapsed.TotalHours < 0.01
+            ? ""
+            : $"◂ {prevName} +{(int)elapsed.TotalHours:D2}:{elapsed.Minutes:D2}";
 
         // Progress bar: fraction of elapsed time in current interval
         double totalSeconds = (nextTime - prevTime).TotalSeconds;
@@ -255,7 +259,7 @@ public partial class MainWindow : Window
         }
     }
 
-    private (string Name, string Arabic, DateTime Next, DateTime Prev) FindNextPrayer(DateTime now)
+    private (string Name, string Arabic, DateTime Next, string PrevName, DateTime Prev) FindNextPrayer(DateTime now)
     {
         var times = _todayTimes!;
         var tomorrow = _tomorrowTimes!;
@@ -275,14 +279,15 @@ public partial class MainWindow : Window
         {
             if (now < sequence[i].Time)
             {
+                string prevName = i == 0 ? "Isha" : sequence[i - 1].Name;
                 DateTime prevTime = i == 0
                     ? sequence[i].Time.AddHours(-12)
                     : sequence[i - 1].Time;
-                return (sequence[i].Name, sequence[i].Arabic, sequence[i].Time, prevTime);
+                return (sequence[i].Name, sequence[i].Arabic, sequence[i].Time, prevName, prevTime);
             }
         }
 
-        return (sequence[^1].Name, sequence[^1].Arabic, sequence[^1].Time, sequence[^2].Time);
+        return (sequence[^1].Name, sequence[^1].Arabic, sequence[^1].Time, sequence[^2].Name, sequence[^2].Time);
     }
 
     private static string FormatCountdown(TimeSpan ts)

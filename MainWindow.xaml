@@ -59,6 +59,7 @@
                     <TextBlock x:Name="PrayerIcon"
                                Grid.Column="0"
                                Text="☽"
+                               FontFamily="Segoe UI Symbol"
                                FontSize="20"
                                Foreground="{StaticResource GoldBrush}"
                                HorizontalAlignment="Center"
@@ -69,16 +70,22 @@
                         </TextBlock.Effect>
                     </TextBlock>
 
-                    <!-- Prayer name -->
-                    <TextBlock x:Name="PrayerNameText"
-                               Grid.Column="1"
-                               Text="Maghrib"
-                               FontFamily="Segoe UI Variable Display"
-                               FontWeight="SemiBold"
-                               FontSize="14"
-                               Foreground="{StaticResource IvoryBrush}"
-                               VerticalAlignment="Center"
-                               Margin="2,2,8,2"/>
+                    <!-- Prayer name and elapsed time -->
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock x:Name="PrayerNameText"
+                                   Text="Maghrib"
+                                   FontFamily="Segoe UI Variable Display"
+                                   FontWeight="SemiBold"
+                                   FontSize="14"
+                                   Foreground="{StaticResource IvoryBrush}"
+                                   Margin="2,2,8,0"/>
+                        <TextBlock x:Name="ElapsedText"
+                                   Text=""
+                                   FontFamily="Segoe UI Variable Display"
+                                   FontSize="9"
+                                   Foreground="#99C9A84B"
+                                   Margin="2,0,8,2"/>
+                    </StackPanel>
 
                     <!-- Progress bar column -->
                     <Grid Grid.Column="2" VerticalAlignment="Center" Margin="0,0">
