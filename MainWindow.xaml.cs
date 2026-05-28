@@ -87,7 +87,7 @@ public partial class MainWindow : Window
         InitializeComponent();
         _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
         _timer.Tick += Timer_Tick;
-        _topmostTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(2000) };
+        _topmostTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(100) };
         _topmostTimer.Tick += TopmostTimer_Tick;
     }
 
@@ -192,7 +192,8 @@ public partial class MainWindow : Window
     {
         if (!_isDocked) return;
         var hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
-        SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+        SetWindowPos(hwnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+        SetWindowPos(hwnd, HWND_TOPMOST,   0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
     }
 
     private void TopmostTimer_Tick(object? sender, EventArgs e)
@@ -222,14 +223,13 @@ public partial class MainWindow : Window
         TimeSpan countdown = nextTime - now;
         if (countdown < TimeSpan.Zero) countdown = TimeSpan.Zero;
 
-        PrayerNameText.Text = nextName;
+        PrayerNameText.Text     = nextName;
+        CountdownText.Text      = FormatCountdown(countdown);
+        PrevPrayerNameText.Text = prevName;
         UpdatePrayerIcon(nextName);
-        CountdownText.Text  = FormatCountdown(countdown);
 
         TimeSpan elapsed = now - prevTime;
-        ElapsedText.Text = elapsed.TotalHours < 0.01
-            ? ""
-            : $"◂ {prevName} +{(int)elapsed.TotalHours:D2}:{elapsed.Minutes:D2}";
+        ElapsedText.Text = $"{(int)elapsed.TotalHours:D2}:{elapsed.Minutes:D2}";
 
         // Progress bar: fraction of elapsed time in current interval
         double totalSeconds = (nextTime - prevTime).TotalSeconds;
@@ -292,6 +292,20 @@ public partial class MainWindow : Window
 
     private static string FormatCountdown(TimeSpan ts)
         => $"{(int)ts.TotalHours:D2}:{ts.Minutes:D2}";
+
+    private void UpdatePrayerIcon(string nextName)
+    {
+        var (glyph, hex) = nextName switch
+        {
+            "Fajr"    => ("★", "#A08030"),
+            "Sunrise" => ("☀", "#FFD700"),
+            "Dhuhr"   => ("☀", "#FFD700"),
+            "Asr"     => ("☀", "#E8A020"),
+            _         => ("☽", "#C9A84B"),
+        };
+        PrayerIcon.Text = glyph;
+        PrayerIcon.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(hex));
+    }
 
     // ── Drag handlers ───────────────────────────────────────────────────────
 
@@ -397,21 +411,6 @@ public partial class MainWindow : Window
                 ? new SolidColorBrush(Color.FromRgb(0xC9, 0xA8, 0x4B))
                 : new SolidColorBrush(Color.FromRgb(0x88, 0x88, 0x88));
         }
-    }
-
-    private void UpdatePrayerIcon(string prayerName)
-    {
-        var (glyph, hex) = prayerName switch
-        {
-            "Fajr"    => ("★", "#A08030"),
-            "Sunrise" => ("☀", "#FFD700"),
-            "Dhuhr"   => ("☀", "#FFD700"),
-            "Asr"     => ("☀", "#E8A020"),
-            _         => ("☽", "#C9A84B"),
-        };
-        PrayerIcon.Text = glyph;
-        PrayerIcon.Foreground = new SolidColorBrush(
-            (Color)ColorConverter.ConvertFromString(hex));
     }
 
     // ── Menu handlers ───────────────────────────────────────────────────────
